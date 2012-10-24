@@ -3,8 +3,6 @@
 #include <avr/pgmspace.h>
 #define DELAY 80
 
-
-//Sets up all of the Keyboard Characters using ASCII Binary
 static const unsigned char smallFont[] PROGMEM = {
   0x00, 0x00, 0x00, 0x00, 0x00 ,   // sp
   0x00, 0x00, 0x2f, 0x00, 0x00 ,   // !
@@ -100,7 +98,6 @@ static const unsigned char smallFont[] PROGMEM = {
   0x00, 0x06, 0x09, 0x09, 0x06     // Degree symbol
 };
 
-// Define Quiet Messages
 char quietMessage01[] = "Speak up, Introvert ";
 char quietMessage02[] = "What did you say? Wuss ";
 char quietMessage03[] = "I can't hear you, Introvert "; 
@@ -164,26 +161,36 @@ int tempSensorValue;            // temporary sensor value check
 int mappedValue;                // store the new value remapped from 0 to 100  
 int tempMappedValue;            // temporary mapped value check
 
+boolean largerSwitcherQuiet = true;
+boolean switcherQuiet = true;
+boolean switcherLoud = true;
+
 void setup() {
-  Serial.begin(9600);  //Set up Serial Read
-  for (int i = 1; i <= 16; i++) // sets the pins as output
+  Serial.begin(9600);  
+  // sets the pins as output
+  for (int i = 1; i <= 16; i++)
     pinMode(pins[i], OUTPUT);
- 
-  for (int i = 1; i <= 8; i++) // set up cols
+  // set up cols and rows
+  for (int i = 1; i <= 8; i++)
     digitalWrite(cols[i - 1], LOW);
-  for (int i = 1; i <= 8; i++) // set up rows
+  for (int i = 1; i <= 8; i++)
     digitalWrite(rows[i - 1], LOW);
   clearLeds();
-  FrequencyTimer2::disable(); // Turn off toggling of pin 11  
-  FrequencyTimer2::setPeriod(2000); // Set refresh rate (interrupt timeout period)
-  FrequencyTimer2::setOnOverflow(display); // Set interrupt routine to be called
+  // Turn off toggling of pin 11
+  FrequencyTimer2::disable();
+  // Set refresh rate (interrupt timeout period)
+  FrequencyTimer2::setPeriod(2000);
+  // Set interrupt routine to be called
+  FrequencyTimer2::setOnOverflow(display);
 }
 
 void loop() {    
-  
-  if (mappedValue <= volumeThreshold) { // If the sampled value is less than or equal to the chosen threshold
-    int numQuiet = TrueRandom.random(1,25); // TrueRandom library randomly picks a number and displays that message 
-    // Displays the number generated's message
+  // print out the value you read:
+  if (mappedValue <= volumeThreshold) {
+    int numQuiet = TrueRandom.random(1,31);
+    Serial.println();
+    Serial.print(numQuiet);
+    Serial.println(" random number generated");
     if (numQuiet == 1)
       scrollMsg( quietMessage01 );
     if (numQuiet == 2)
@@ -233,9 +240,8 @@ void loop() {
     if (numQuiet == 24)
       scrollMsg( quietMessage24 );
   }
-  if (mappedValue > volumeThreshold) { // If the sampled value is greater than the chosen threshold
-    int numLoud = TrueRandom.random(1,13); // TrueRandom library randomly picks a number and displays that message
-    // Displays the number generated's message
+  if (mappedValue > volumeThreshold) {
+    int numLoud = TrueRandom.random(1,13);
     if (numLoud == 1)
       scrollMsg( loudMessage01 );
     if (numLoud == 2)
@@ -261,37 +267,11 @@ void loop() {
     if (numLoud == 12)
       scrollMsg( loudMessage12 ); 
   }
-  sensorValue = analogRead(analogPin); // Read the sensor value after the message displays, it returns a random number between 400-900
-  mappedValue = map(sensorValue, microphoneBottom, microphoneTop, 0, 100); // Remap that sensor value from 400-900 to 0-100
-  for (int i = 1; i <= microphoneCheckSampleNumber; i++) // Samples the microphone 'microphoneCheckSampleNumber' times in a short time 
-    microphoneCheck(); // What actually checks the microphone value
-  printValues(); //Prints the values in the Serial Monitor for easy watching
-}
-
-void printValues() { // Prints the Sensor Values and Mapped Value to the serial monitor for visual feedback of the numbers
-  Serial.print("sensorValue: ");
-  Serial.println(sensorValue);   
-  Serial.println();    
-  Serial.print("map ");
-  Serial.print(microphoneBottom);
-  Serial.print(" - ");
-  Serial.print(microphoneTop);
-  Serial.print(" to 0 -                     : ");
-  Serial.println(mappedValue);
-  Serial.println();
-}
-
-void microphoneCheck() { // All of this is in a for loop, making this whole section run 'microphoneCheckSampleNumber' of times
-  delay(delayBetweenWords / microphoneCheckSampleNumber); // a short delay
-  tempSensorValue = analogRead(analogPin); // reads a new temporary sensor value
-  tempMappedValue = map(tempSensorValue, microphoneBottom, microphoneTop, 0, 100); // changes the new temporary sensor value to a new temporary mapped value
-  Serial.print(tempSensorValue); // prints out the temporary sensor value
-  Serial.print(", ");
-  Serial.println(tempMappedValue); // prints out the temporary mapped value
-  if (tempMappedValue > mappedValue) // if the new temporaryMappedValue is a larger number than the current mappedValue
-    mappedValue = tempMappedValue; // the current mappedValue is now equal to the temporaryMappedValue
-  else
-    mappedValue = mappedValue; // otherwise the current mappedValue stays the same 
+  sensorValue = analogRead(analogPin); 
+  mappedValue = map(sensorValue, microphoneBottom, microphoneTop, 0, 100);
+  for (int i = 1; i <= microphoneCheckSampleNumber; i++) 
+    microphoneCheck();
+  printValues();
 }
 
 void scrollMsg( char *msg ) {
@@ -315,6 +295,7 @@ void clearLeds() {
 }
 
 void setChar(char ch) {
+
   for (int i = 0; i < 5; i++) {
     unsigned char bt = pgm_read_byte(&(smallFont [(ch-32)*5 + i] ));
     for (int j = 0; j < 8; j++) {
@@ -333,7 +314,7 @@ void display() {
   }
   for (int row = 0; row < 8; row++) {
     if (leds[col][7 - row] == 1) {
-      //if (leds[col][ row] == 1) { //This will reverse the characters so they appear 'mirror like'
+      //if (leds[col][ row] == 1) {
       digitalWrite(rows[row], HIGH);  // Turn on this led
     }
     else {
@@ -343,7 +324,38 @@ void display() {
   digitalWrite(cols[col], LOW); // Turn whole column on at once (for equal lighting times)
 }
 
-void slideChar(char ch, int del) { //code to make the letters move
+void printValues() {
+  //  Serial.println(tempMappedValueZero);
+  //  Serial.println(tempMappedValueOne);
+  //  Serial.println(tempMappedValueTwo);
+  //  Serial.println(tempMappedValueThree);
+  //  Serial.println(tempMappedValueFour);
+  Serial.print("sensorValue: ");
+  Serial.println(sensorValue);   
+  Serial.println();    
+  Serial.print("map ");
+  Serial.print(microphoneBottom);
+  Serial.print(" - ");
+  Serial.print(microphoneTop);
+  Serial.print(" to 0 -                     : ");
+  Serial.println(mappedValue);
+  Serial.println();
+}
+
+void microphoneCheck() {
+  delay(delayBetweenWords / microphoneCheckSampleNumber);
+  Serial.print(tempSensorValue);
+  Serial.print(", ");
+  Serial.println(tempMappedValue);
+  tempSensorValue = analogRead(analogPin);
+  tempMappedValue = map(tempSensorValue, microphoneBottom, microphoneTop, 0, 100);
+  if (tempMappedValue > mappedValue)
+    mappedValue = tempMappedValue;
+  else
+    mappedValue = mappedValue;
+}
+
+void slideChar(char ch, int del) {
   for (int l = 0; l < 5; l++) {
     for (int i = 0; i < 7; i++) {
       for (int j = 0; j < 8; j++) {
