@@ -14,9 +14,9 @@
     {0, 0, 0, 0, 0, 0, 0, 0}, \
     {0, 0, 0, 0, 0, 0, 0, 0}, \
     {0, 0, 0, 0, 0, 0, 0, 0}, \
-    {0, 0, 0, 0, 0, 0, 0, 0}, \
-    {0, 0, 0, 0, 0, 0, 0, 0}, \
-    {0, 0, 0, 0, 0, 0, 0, 0}, \
+    {0, 0, 0, 0, 0, 0, 0, 1}, \
+    {0, 0, 0, 0, 0, 0, 0, 1}, \
+    {0, 0, 0, 0, 0, 0, 1, 0}, \
     {0, 0, 0, 0, 0, 0, 0, 0}, \
     {0, 0, 0, 0, 0, 0, 0, 0}  \
 }
@@ -72,22 +72,22 @@ void setup() {
 }
 
 void loop(){
-  rightButtonState = digitalRead(rightButton);
-  leftButtonState = digitalRead(leftButton);
-  if (rightButtonState == HIGH){
+//  rightButtonState = digitalRead(rightButton);
+//  leftButtonState = digitalRead(leftButton);
+//  if (rightButtonState == HIGH){
     for (int i = 1; i <= numLedsOn; i++){  //For those crazy moments when you're turning
       ledOn = ++ledOn % numLedsOn;
       scrollSpeed = 80;
       slideLedsOn(ledOn, scrollSpeed);
     }
-  }
-  else if (rightButtonState == LOW){
+//  }
+//  else if (rightButtonState == LOW){
     for (int i = 1; i <= numLedsOff; i++){ //The button is not pressed... nothing to see here, move along.
       ledOff = ++ledOff % numLedsOff;
       scrollSpeed = 80;
       slideLedsOff(ledOff, scrollSpeed);
     }
-  }
+//  }
 }
 
 
