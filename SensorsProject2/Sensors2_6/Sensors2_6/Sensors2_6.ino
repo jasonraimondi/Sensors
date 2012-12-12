@@ -21,26 +21,17 @@
     {0, 0, 0, 0, 0, 0, 0, 0}  \
 }
 
-#define LEFT { \
-    {0, 0, 0, 1, 0, 0, 0, 1}, \
-    {0, 0, 1, 0, 0, 0, 1, 0}, \
-    {0, 1, 0, 0, 0, 1, 0, 0}, \
-    {1, 0, 0, 0, 1, 0, 0, 0}, \
-    {1, 0, 0, 0, 1, 0, 0, 0}, \
-    {0, 1, 0, 0, 0, 1, 0, 0}, \
-    {0, 0, 1, 0, 0, 0, 1, 0}, \
-    {0, 0, 0, 1, 0, 0, 0, 1}  \
+#define LEDS { \
+    {0, 0, 0, 1, 0, 0, 0, 0}, \
+    {0, 0, 1, 0, 0, 0, 0, 0}, \
+    {0, 1, 0, 0, 0, 0, 0, 0}, \
+    {1, 0, 0, 0, 0, 0, 0, 0}, \
+    {1, 0, 0, 0, 0, 0, 0, 0}, \
+    {0, 1, 0, 0, 0, 0, 0, 0}, \
+    {0, 0, 1, 0, 0, 0, 0, 0}, \
+    {0, 0, 0, 1, 0, 0, 0, 0}  \
 }
-#define RIGHT { \
-    {1, 0, 0, 0, 1, 0, 0, 0}, \
-    {0, 1, 0, 0, 0, 1, 0, 0}, \
-    {0, 0, 1, 0, 0, 0, 1, 0}, \
-    {0, 0, 0, 1, 0, 0, 0, 1}, \
-    {0, 0, 0, 1, 0, 0, 0, 1}, \
-    {0, 0, 1, 0, 0, 0, 1, 0}, \
-    {0, 1, 0, 0, 0, 1, 0, 0}, \
-    {1, 0, 0, 0, 1, 0, 0, 0}  \
-}
+
 
 byte col = 0;
 byte leds[8][8];
@@ -64,17 +55,12 @@ byte ledsOff[numLedsOff][8][8] = {
   OFF
 };
 
-int ledLeft = 0;
-const int numLedsLeft = 1;
-byte ledsLeft[numLedsLeft][8][8] = {
-  LEFT
+int ledTurn = 0;
+const int numLedsTurn = 1;
+byte ledsTurn[numLedsTurn][8][8] = {
+  LEDS
 };
 
-int ledRight = 0;
-const int numLedsRight = 1;
-byte ledsRight[numLedsRight][8][8] = {
-  RIGHT
-};
 
 int scrollSpeed;
 const int rightButton = 40;     // the number of right hand button pin
@@ -106,51 +92,26 @@ void setup() {
 
 void loop(){
   rightButtonState = digitalRead(rightButton);
-//  leftButtonState = digitalRead(leftButton);
-  if (rightButtonState == HIGH){
-    for (int i = 1; i <= numLedsRight; i++){  //For those crazy moments when you're turning
-      ledRight = ++ledRight % numLedsRight;
+  leftButtonState = digitalRead(leftButton);
+  if (rightButtonState == LOW){
+    for (int i = 1; i <= numLedsTurn; i++){  //For those crazy moments when you're turning
+      ledTurn = ++ledTurn % numLedsTurn;
       scrollSpeed = 80;
-      slidePattern(numPatterns - pattern -1, 60);
+      slideLedsTurn(numLedsTurn - ledTurn -1, 60); //Turn Right
+//      slideLedsTurn(ledTurn, scrollSpeed);  //Turn Left
     }
   }
-  
-//  if (leftButtonState == HIGH){
-//    for (int i = 1; i <= numLedsLeft; i++){  //For those crazy moments when you're turning
-//      ledLeft = ++ledRight % numLedsLeft;
-//      scrollSpeed = 80;
-//      slideLedsLeft(ledLeft, scrollSpeed);
-//    }
-//  }
-//  
-  
-  
-//  if (rightButtonState == LOW){
-//    for (int i = 1; i <= numLedsOff; i++){ //The button is not pressed... nothing to see here, move along.
-//      ledOff = ++ledOff % numLedsOff;
-//      scrollSpeed = 80;
-//      slideLedsOff(ledOff, scrollSpeed);
-//    }
-//    for (int i = 1; i <= numLedsOff; i++){ //The button is not pressed... nothing to see here, move along.
-//      ledOff = ++ledOff % numLedsOff;
-//      scrollSpeed = 80;
-//      slideLedsOff(ledOff, scrollSpeed);
-//    }
-//  }
-//  
-  
-  
+  if (leftButtonState == LOW){
+    for (int i = 1; i <= numLedsTurn; i++){  //For those crazy moments when you're turning
+      ledTurn = ++ledTurn % numLedsTurn;
+      scrollSpeed = 80;
+//      slideLedsLeft(numLedsTurn - ledTurn -1, 60); //Turn Right
+      slideLedsTurn(ledTurn, scrollSpeed);  //Turn Left
+    }
+  }
   clearLeds();
-  
-  
-  
-  
-  
-  
-    // THIS IS TO REVERSE THE ORDER THAT THE CHARACTERS ARE DISPLAYED
-    //
+  delay(100);
 
-  
 }
 
 
@@ -217,7 +178,7 @@ void slideLedsOff(int ledOff, int del) {
   }
 }
 
-void slideLedsLeft(int ledLeft, int del) {
+void slideLedsTurn(int ledTurn, int del) {
   for (int l = 0; l < 8; l++) {
     for (int i = 0; i < 7; i++) {
       for (int j = 0; j < 8; j++) {
@@ -225,25 +186,13 @@ void slideLedsLeft(int ledLeft, int del) {
       }
     }
     for (int j = 0; j < 8; j++) {
-      leds[j][7] = ledsLeft[ledLeft][j][0 + l];
+      leds[j][7] = ledsTurn[ledTurn][j][0 + l];
     }
     delay(del);
   }
 }
 
-void slideLedsRight(int ledRight, int del) {
-  for (int l = 0; l < 8; l++) {
-    for (int i = 0; i < 7; i++) {
-      for (int j = 0; j < 8; j++) {
-        leds[j][i] = leds[j][i+1];
-      }
-    }
-    for (int j = 0; j < 8; j++) {
-      leds[j][7] = ledsRight[ledRight][j][0 + l];
-    }
-    delay(del);
-  }
-}
+
 
 
 

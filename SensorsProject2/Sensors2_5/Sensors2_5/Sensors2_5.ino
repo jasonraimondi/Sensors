@@ -107,48 +107,27 @@ void setup() {
 void loop(){
   rightButtonState = digitalRead(rightButton);
 //  leftButtonState = digitalRead(leftButton);
-  if (rightButtonState == HIGH){
+  if (rightButtonState == LOW){
     for (int i = 1; i <= numLedsRight; i++){  //For those crazy moments when you're turning
       ledRight = ++ledRight % numLedsRight;
       scrollSpeed = 80;
-      slidePattern(numPatterns - pattern -1, 60);
+      slideLedsRight(numLedsRight - ledRight -1, 60);
     }
+    
   }
-  
-//  if (leftButtonState == HIGH){
-//    for (int i = 1; i <= numLedsLeft; i++){  //For those crazy moments when you're turning
-//      ledLeft = ++ledRight % numLedsLeft;
-//      scrollSpeed = 80;
-//      slideLedsLeft(ledLeft, scrollSpeed);
-//    }
-//  }
-//  
-  
-  
-//  if (rightButtonState == LOW){
-//    for (int i = 1; i <= numLedsOff; i++){ //The button is not pressed... nothing to see here, move along.
-//      ledOff = ++ledOff % numLedsOff;
-//      scrollSpeed = 80;
-//      slideLedsOff(ledOff, scrollSpeed);
-//    }
-//    for (int i = 1; i <= numLedsOff; i++){ //The button is not pressed... nothing to see here, move along.
-//      ledOff = ++ledOff % numLedsOff;
-//      scrollSpeed = 80;
-//      slideLedsOff(ledOff, scrollSpeed);
-//    }
-//  }
-//  
-  
+      for (int i = 1; i <= numLedsLeft; i++){  //For those crazy moments when you're turning
+      ledLeft = ++ledLeft % numLedsLeft;
+      scrollSpeed = 80;
+      slideLedsLeft(numLedsLeft - ledLeft -1, 60);
+    }
   
   clearLeds();
   
   
-  
-  
-  
+
   
     // THIS IS TO REVERSE THE ORDER THAT THE CHARACTERS ARE DISPLAYED
-    //
+    //slidePattern(numPatterns - pattern -1, 60);
 
   
 }
